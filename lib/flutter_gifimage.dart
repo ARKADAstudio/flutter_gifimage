@@ -1,11 +1,3 @@
-/*
-  author: Jpeng
-  email: peng8350@gmail.com
-  time:2019-7-26 3:30
-*/
-
-library flutter_gifimage;
-
 import 'package:http/http.dart' as http;
 import 'dart:ui' as ui show Codec;
 import 'dart:ui';
@@ -30,18 +22,19 @@ class GifCache {
 
 /// controll gif
 class GifController extends AnimationController {
-  GifController(
-      {required TickerProvider vsync,
-      double value = 0.0,
-      Duration? reverseDuration,
-      Duration? duration,
-      AnimationBehavior? animationBehavior})
-      : super.unbounded(
-            value: value,
-            reverseDuration: reverseDuration,
-            duration: duration,
-            animationBehavior: animationBehavior ?? AnimationBehavior.normal,
-            vsync: vsync);
+  GifController({
+    required TickerProvider vsync,
+    double value = 0.0,
+    Duration? reverseDuration,
+    Duration? duration,
+    AnimationBehavior? animationBehavior,
+  }) : super.unbounded(
+          value: value,
+          reverseDuration: reverseDuration,
+          duration: duration,
+          animationBehavior: animationBehavior ?? AnimationBehavior.normal,
+          vsync: vsync,
+        );
 
   @override
   void reset() {
@@ -67,6 +60,7 @@ class GifImage extends StatefulWidget {
     this.matchTextDirection = false,
     this.gaplessPlayback = false,
   });
+
   final VoidCallback? onFetchCompleted;
   final GifController controller;
   final ImageProvider image;
@@ -117,7 +111,7 @@ class GifImageState extends State<GifImage> {
     super.didUpdateWidget(oldWidget);
     if (widget.image != oldWidget.image) {
       fetchGif(widget.image).then((imageInfors) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _infos = imageInfors;
             _fetchComplete = true;
@@ -126,6 +120,7 @@ class GifImageState extends State<GifImage> {
               widget.onFetchCompleted!();
             }
           });
+        }
       });
     }
     if (widget.controller != oldWidget.controller) {
@@ -136,10 +131,11 @@ class GifImageState extends State<GifImage> {
 
   void _listener() {
     if (_curIndex != widget.controller.value && _fetchComplete) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _curIndex = widget.controller.value.toInt();
         });
+      }
     }
   }
 
@@ -148,7 +144,7 @@ class GifImageState extends State<GifImage> {
     super.didChangeDependencies();
     if (_infos == null) {
       fetchGif(widget.image).then((imageInfors) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _infos = imageInfors;
             _fetchComplete = true;
@@ -157,6 +153,7 @@ class GifImageState extends State<GifImage> {
               widget.onFetchCompleted!();
             }
           });
+        }
       });
     }
   }
@@ -215,7 +212,7 @@ Future<List<ImageInfo>> fetchGif(ImageProvider provider) async {
     data = provider.bytes;
   }
 
-  ui.Codec codec = await PaintingBinding.instance.instantiateImageCodec(data);
+  final codec = await instantiateImageCodec(data);
   infos = [];
   for (int i = 0; i < codec.frameCount; i++) {
     FrameInfo frameInfo = await codec.getNextFrame();
